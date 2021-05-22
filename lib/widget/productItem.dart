@@ -3,19 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/provider/product.dart';
 import 'package:shop_app/screens/productDetailsScreen.dart';
 
-
 class ProductItem extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    final product = Provider.of<Product>(context);
+    final product = Provider.of<Product>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context).pushNamed(
-                ProductDetailsScreen.routeName, arguments: product.id);
+            Navigator.of(context).pushNamed(ProductDetailsScreen.routeName,
+                arguments: product.id);
           },
           child: Image.network(
             product.imageUrl,
@@ -28,14 +26,21 @@ class ProductItem extends StatelessWidget {
             product.title,
             textAlign: TextAlign.center,
           ),
-          leading: IconButton(icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border), color: Theme
-              .of(context)
-              .accentColor, onPressed: () {
-            product.toggleFavoriteStatus();
-          }),
-          trailing: IconButton(icon: Icon(Icons.shopping_cart), color: Theme
-              .of(context)
-              .accentColor, onPressed: () {}),
+          // נותן אפשרות לבנייה רק של האיקון במקום הכל
+          leading: Consumer<Product>(
+            builder: (context, product, _) => IconButton(
+                icon: Icon(product.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                color: Colors.deepOrange,
+                onPressed: () {
+                  product.toggleFavoriteStatus();
+                }),
+          ),
+          trailing: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              color: Theme.of(context).accentColor,
+              onPressed: () {}),
         ),
       ),
     );
