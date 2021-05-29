@@ -12,87 +12,84 @@ class EditProductScreen extends StatefulWidget {
 }
 
 class _EditProductScreenState extends State<EditProductScreen> {
+  var _imageUrlController = TextEditingController();
+  final _priceFocusNode = FocusNode();
+  var _isInit = true;
+  var _valueInit = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': '',
+  };
+  // final _imageUrlFocusNode = FocusNode();
+  final _form = GlobalKey<FormState>();
+  var _editedProduct =
+      Product(id: '', title: '', description: '', imageUrl: '', price: 0);
+
+  // void _updateUrl() {
+  //   if (!_imageUrlFocusNode.hasFocus) {
+  //     setState(() {});
+  //   }
+  // }
+
+  void _saveForm() {
+    final isValid = _form.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    _form.currentState!.save();
+    if (_editedProduct.id.isNotEmpty) {
+      Provider.of<ProductProvider>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<ProductProvider>(context, listen: false)
+          .addProduct(_editedProduct);
+    }
+    Navigator.of(context).pop();
+  }
+
+  @override
+  didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      final productId = ModalRoute.of(context)!.settings.arguments;
+      if (productId != null) {
+        _editedProduct =
+            Provider.of<ProductProvider>(context).findById(productId as String);
+        _valueInit = {
+          'title': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'description': _editedProduct.description,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+  }
+  // @override
+  // void initState() {
+  //   _imageUrlFocusNode.addListener(() {
+  //     // ignore: unnecessary_statements
+  //     _updateUrl;
+  //   });
+  //   super.initState();
+  // }
+
+  @override
+  void dispose() {
+    //כדי לא ליצור איחסון מיותר בזיכרון
+    // _imageUrlFocusNode.removeListener(() {
+    //   _updateUrl();
+    // });
+    _imageUrlController.dispose();
+    _priceFocusNode.dispose();
+    // _imageUrlFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var _imageUrlController = TextEditingController();
-    final _priceFocusNode = FocusNode();
-    var _isInit = true;
-    var _valueInit = {
-      'title': '',
-      'price': '',
-      'description': '',
-      'imageUrl': '',
-    };
-    // final _imageUrlFocusNode = FocusNode();
-    final _form = GlobalKey<FormState>();
-    var _editedProduct =
-        Product(id: '', title: '', description: '', imageUrl: '', price: 0);
-
-    // void _updateUrl() {
-    //   if (!_imageUrlFocusNode.hasFocus) {
-    //     setState(() {});
-    //   }
-    // }
-
-    void _saveForm() {
-      final isValid = _form.currentState!.validate();
-      if (!isValid) {
-        return;
-      }
-      _form.currentState!.save();
-      if (_editedProduct.id.isNotEmpty) {
-        Provider.of<ProductProvider>(context, listen: false)
-            .updateProduct(_editedProduct.id, _editedProduct);
-      } else {
-        Provider.of<ProductProvider>(context, listen: false)
-            .addProduct(_editedProduct);
-      }
-      Navigator.of(context).pop();
-    }
-
-    @override
-    didChangeDependencies() {
-      super.didChangeDependencies();
-      if (_isInit) {
-        final productId = ModalRoute.of(context)!.settings.arguments;
-        if (productId != null) {
-          _editedProduct = Provider.of<ProductProvider>(context)
-              .findById(productId as String);
-          _valueInit = {
-            'title': _editedProduct.title,
-            'price': _editedProduct.price.toString(),
-            'description': _editedProduct.description,
-            'imageUrl': '',
-          };
-          _imageUrlController.text = _editedProduct.imageUrl;
-        }
-      }
-      _isInit = false;
-    }
-
-    didChangeDependencies();
-
-    // @override
-    // void initState() {
-    //   _imageUrlFocusNode.addListener(() {
-    //     // ignore: unnecessary_statements
-    //     _updateUrl;
-    //   });
-    //   super.initState();
-    // }
-
-    @override
-    void dispose() {
-      //כדי לא ליצור איחסון מיותר בזיכרון
-      // _imageUrlFocusNode.removeListener(() {
-      //   _updateUrl();
-      // });
-      _imageUrlController.dispose();
-      _priceFocusNode.dispose();
-      // _imageUrlFocusNode.dispose();
-      super.dispose();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit product'),
