@@ -33,14 +33,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
   //   }
   // }
 
-  void _saveForm() {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _saveForm() async {
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
     }
+    setState(() {
+      _isLoading = true;
+    });
     _form.currentState!.save();
     if (_editedProduct.id.isNotEmpty) {
       Provider.of<ProductProvider>(context, listen: false)
@@ -50,29 +50,31 @@ class _EditProductScreenState extends State<EditProductScreen> {
       });
       Navigator.of(context).pop();
     } else {
-      Provider.of<ProductProvider>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-        return showDialog<Null>(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('An Error'),
-                  content: Text('Something went wrong!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Okey'),
-                    )
-                  ],
-                ));
-      }).then((_) {
+      try {
+        await Provider.of<ProductProvider>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('An error occurred!'),
+            content: Text('Something went wrong.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Okey'),
+              )
+            ],
+          ),
+        );
+      } finally {
         setState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
-      });
+      }
     }
   }
 
