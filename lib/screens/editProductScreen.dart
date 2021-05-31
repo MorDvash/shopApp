@@ -52,7 +52,22 @@ class _EditProductScreenState extends State<EditProductScreen> {
     } else {
       Provider.of<ProductProvider>(context, listen: false)
           .addProduct(_editedProduct)
-          .then((_) {
+          .catchError((error) {
+        return showDialog<Null>(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text('An Error'),
+                  content: Text('Something went wrong!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Okey'),
+                    )
+                  ],
+                ));
+      }).then((_) {
         setState(() {
           _isLoading = false;
         });

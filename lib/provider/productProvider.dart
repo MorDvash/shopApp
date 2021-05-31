@@ -55,7 +55,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> addProduct(Product product) {
     final url = Uri.parse(
-        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products.json');
+        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products');
     return http
         .post(
       url,
@@ -68,13 +68,16 @@ class ProductProvider with ChangeNotifier {
     )
         .then((res) {
       final newProduct = Product(
-          id: convert.json.decode(res.body)['name'],
-          title: product.title,
-          description: product.description,
-          imageUrl: product.imageUrl,
-          price: product.price);
+        id: convert.json.decode(res.body)['name'],
+        title: product.title,
+        description: product.description,
+        imageUrl: product.imageUrl,
+        price: product.price,
+      );
       _items.add(newProduct);
       notifyListeners();
+    }).catchError((error) {
+      throw error;
     });
   }
 
