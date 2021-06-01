@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import './productItem.dart';
 import '../provider/productProvider.dart';
 
-
 class ProductsGridView extends StatelessWidget {
   final bool showOnlyFavorites;
 
@@ -13,7 +12,8 @@ class ProductsGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productData = Provider.of<ProductProvider>(context);
-    final products = showOnlyFavorites ? productData.favorites : productData.items;
+    final products =
+        showOnlyFavorites ? productData.favorites : productData.items;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
@@ -24,9 +24,9 @@ class ProductsGridView extends StatelessWidget {
           crossAxisSpacing: 10,
         ),
         itemBuilder: (context, index) =>
-        // להשתמש כאשר משתמשים ברשימה כדי למנוע באגים
-            ChangeNotifierProvider.value(value: products[index],
-                child: ProductItem()),
+            // להשתמש כאשר משתמשים ברשימה כדי למנוע באגים
+            ChangeNotifierProvider.value(
+                value: products[index], child: ProductItem()),
         itemCount: products.length,
       ),
     );
