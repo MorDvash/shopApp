@@ -63,12 +63,12 @@ class ProductProvider with ChangeNotifier {
       final List<Product> loadedProducts = [];
       fetchData.forEach((productId, productData) {
         loadedProducts.add(Product(
-          id: productId,
-          title: productData['title'],
-          description: productData['description'],
-          imageUrl: productData['imageUrl'],
-          price: productData['price'],
-        ));
+            id: productId,
+            title: productData['title'],
+            description: productData['description'],
+            imageUrl: productData['imageUrl'],
+            price: productData['price'],
+            isFavorite: productData['isFavorite']));
       });
       _items = loadedProducts;
       notifyListeners();
