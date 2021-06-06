@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/provider/auth.dart';
 
+import '../models/httpException.dart';
+
 enum AuthMode { Signup, Login }
 
 class AuthScreen extends StatelessWidget {
@@ -105,6 +107,24 @@ class _AuthCardState extends State<AuthCard> {
   var _isLoading = false;
   final _passwordController = TextEditingController();
 
+  void _showDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An error occurred!'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Okey'),
+          )
+        ],
+      ),
+    );
+  }
+
   void _submit() async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
@@ -114,12 +134,25 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
-      await Provider.of<Auth>(context, listen: false).signup(
-          _authData['email'] as String, _authData['password'] as String);
+    try {
+      if (_authMode == AuthMode.Login) {
+        // Log user in
+        await Provider.of<Auth>(context, listen: false).signIn(
+            _authData['email'] as String, _authData['password'] as String);
+      } else {
+        // Sign user up
+        await Provider.of<Auth>(context, listen: false).signUp(
+            _authData['email'] as String, _authData['password'] as String);
+      }
+    } on HttpException catch (error) {
+      var errorMessage = 'Auth failed';
+      if (error.message.contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email is already in use';
+      }
+      _showDialog(errorMessage);
+    } catch (error) {
+      var errorMessage = 'Could not auth you.please try again later';
+      _showDialog(errorMessage);
     }
     setState(() {
       _isLoading = false;
