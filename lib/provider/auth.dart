@@ -21,6 +21,10 @@ class Auth with ChangeNotifier {
     return '';
   }
 
+  String get userId {
+    return _userId;
+  }
+
   Future<void> authReq(String email, String password, String urlString) async {
     final url = Uri.parse(urlString);
     try {

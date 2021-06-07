@@ -18,7 +18,7 @@ class ProductProvider with ChangeNotifier {
     // ),
     // Product(
     //   id: 'p2',
-    //   title: 'Trousers',
+    //   title: 'Troursers',
     //   description: 'A nice pair of trousers.',
     //   price: 59.99,
     //   imageUrl:
@@ -42,7 +42,8 @@ class ProductProvider with ChangeNotifier {
     // ),
   ];
   String authToken;
-  ProductProvider(this.authToken, this._items);
+  String userId;
+  ProductProvider(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     return [..._items];
@@ -58,7 +59,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> fetchAndSetProduct() async {
     final url = Uri.parse(
-        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/$userId/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final fetchData = json.decode(response.body) as Map<String, dynamic>;
@@ -81,7 +82,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> addProduct(Product product) async {
     final url = Uri.parse(
-        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/$userId/products.json?auth=$authToken');
     try {
       final response = await http.post(
         url,
@@ -113,7 +114,7 @@ class ProductProvider with ChangeNotifier {
     final productIndex = _items.indexWhere((prod) => prod.id == id);
     if (productIndex >= 0) {
       final url = Uri.parse(
-          'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken');
+          'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/$userId/products/$id.json?auth=$authToken');
       try {
         await http.patch(
           url,
@@ -134,7 +135,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken');
+        'https://flutter-app-shop-3cc8d-default-rtdb.europe-west1.firebasedatabase.app/$userId/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
