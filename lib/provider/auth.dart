@@ -3,13 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/httpException.dart';
 
 class Auth with ChangeNotifier {
-  late String _token;
+  String? _token;
   DateTime? _expiryDate;
-  late String _userId;
+  String? _userId;
   Timer? _authTime;
 
   bool get isAuth {
@@ -18,13 +19,13 @@ class Auth with ChangeNotifier {
 
   String get token {
     if (_expiryDate != null && _expiryDate!.isAfter(DateTime.now())) {
-      return _token;
+      return _token as String;
     }
     return '';
   }
 
   String get userId {
-    return _userId;
+    return _userId as String;
   }
 
   Future<void> authReq(String email, String password, String urlString) async {
@@ -55,6 +56,18 @@ class Auth with ChangeNotifier {
       );
       autoLogOut();
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      // final userData = json.encode({
+      //   'token': _token,
+      //   'userId': _userId,
+      //   'expiryDate': _expiryDate!.toIso8601String()
+      // });
+      final token = json.encode(_token);
+      final userId = json.encode(_userId);
+      // final expiryDate = json.encode(_expiryDate);
+      prefs.setString('token', token);
+      prefs.setString('userId', userId);
+      // prefs.setString('expiryDate', expiryDate);
     } catch (error) {
       throw (error);
     }
@@ -79,6 +92,30 @@ class Auth with ChangeNotifier {
       _authTime = null;
     }
     notifyListeners();
+  }
+
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('token')) {
+      return false;
+    }
+    print('got here');
+    final extractedToken = json.decode(prefs.getString('token') as String);
+    final extractedUserId = json.decode(prefs.getString('userId') as String);
+    // final extractedExpiryDate = json.decode(prefs.getString('expiryDate') as String);
+    print('got here111');
+    // final expiryDate =
+    //     DateTime.parse(extractedExpiryDate as String);
+
+    // if (expiryDate.isBefore(DateTime.now())) {
+    //   return false;
+    // }
+    _token = extractedToken as String;
+    _userId = extractedUserId as String;
+    // _expiryDate = expiryDate;
+    // notifyListeners();
+    // autoLogOut();
+    return true;
   }
 
   void autoLogOut() {
